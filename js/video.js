@@ -16,6 +16,33 @@ const removeBtnColor = ()=>{
     }
 }
 
+// search button
+document.getElementById('search-input').addEventListener('keyup',(e)=>{
+    const searchInput = e.target.value;
+    loadVideos(searchInput);
+})
+
+
+// show details but click details
+const showDatailsBtn=(id)=>{
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/video/${id}`)
+        .then(res => res.json())
+        .then(data => showModalbtn(data.video))
+        .catch(error => console.log(error));
+}
+
+const showModalbtn=(video)=>{
+    const modalContainer = document.getElementById('modal-container')
+    modalContainer.innerHTML=`
+        <img src="${video.thumbnail}" />
+        <p>${video.description}</p>
+    `
+    // step-01
+    // document.getElementById('modal-btn').click()
+    // step-01
+    document.getElementById('custom').showModal()
+}
+
 // load api for category button
 const loadCategories = () => {
     fetch('https://openapi.programming-hero.com/api/phero-tube/categories')
@@ -45,8 +72,8 @@ const loadCategoryById = (id) => {
 
 // loading api for homepage videos
 
-const loadVideos = () => {
-    fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
+const loadVideos = (searchInput= '') => {
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchInput}`)
         .then(res => res.json())
         .then(data => displayVideos(data.videos))
         .catch(error => console.log(error))
@@ -97,10 +124,10 @@ const displayVideos = (videos) => {
 
 
     for (const video of videos) {
-        // console.log(video)
+        console.log(video)
         // create a card
         const card = document.createElement('div');
-        card.classList = "card card-compact";
+        card.classList = "card card-compact mb-5";
         card.innerHTML = `
         <figure class="h-[200px] relative">
             <img
@@ -121,6 +148,9 @@ const displayVideos = (videos) => {
                 ${video.authors[0].verified ? `<i class="fa-solid fa-certificate"></i>` : ''}
                 </div>
             </div>
+        </div>
+        <div class="text-center">
+        <button class="btn btn-sm" id=${video.video_id} onclick="showDatailsBtn(id)">Details</button>
         </div>
         `
         videosContainer.append(card)
