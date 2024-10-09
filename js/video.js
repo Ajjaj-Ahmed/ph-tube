@@ -9,7 +9,14 @@ function getTime(time) {
     return `${day} day ${hour} hour ${minute} minute ${remainSecond} second ago`
 }
 
+const removeBtnColor = ()=>{
+    const buttons = document.getElementsByClassName('btn');
+    for(let btn of buttons){
+        btn.classList.remove('btn-primary')
+    }
+}
 
+// load api for category button
 const loadCategories = () => {
     fetch('https://openapi.programming-hero.com/api/phero-tube/categories')
         .then(res => res.json())
@@ -18,42 +25,25 @@ const loadCategories = () => {
 
 }
 
-const displayCategories = (categories) => {
+// getting videos but click on button api
 
-    const buttonContainer = document.getElementById('button-container')
-    categories.forEach((category) => {
-        // create a button
-        const button = document.createElement('button')
-        button.classList = "btn btn-secondary"
-        button.innerText = category.category;
-
-        // append button
-        buttonContainer.append(button)
-
-    });
+const loadCategoryById = (id) => {
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+        .then(res => res.json())
+        .then(data =>{
+            // sovai ke remove korte hobe
+            removeBtnColor()
+            // id ar class active korte hobe
+            const activeBtn = document.getElementById(`btn-${id}`);
+            activeBtn.classList.add('btn-primary')
+            displayVideos(data.category)
+        })
+        .catch(error => console.log(error));
 
 }
 
-// const video ={
-//     "category_id": "1001",
-//     "video_id": "aaaa",
-//     "thumbnail": "https://i.ibb.co/L1b6xSq/shape.jpg",
-//     "title": "Shape of You",
-//     "authors": [
-//         {
-//             "profile_picture": "https://i.ibb.co/D9wWRM6/olivia.jpg",
-//             "profile_name": "Olivia Mitchell",
-//             "verified": ""
-//         }
-//     ],
-//     "others": {
-//         "views": "100K",
-//         "posted_date": "16278"
-//     },
-//     "description": "Dive into the rhythm of 'Shape of You,' a captivating track that blends pop sensibilities with vibrant beats. Created by Olivia Mitchell, this song has already gained 100K views since its release. With its infectious melody and heartfelt lyrics, 'Shape of You' is perfect for fans looking for an uplifting musical experience. Let the music take over as Olivia's vocal prowess and unique style create a memorable listening journey."
-// }
 
-
+// loading api for homepage videos
 
 const loadVideos = () => {
     fetch('https://openapi.programming-hero.com/api/phero-tube/videos')
@@ -62,10 +52,52 @@ const loadVideos = () => {
         .catch(error => console.log(error))
 }
 
+
+
+
+// show button 
+const displayCategories = (categories) => {
+
+    const buttonContainer = document.getElementById('button-container')
+    categories.forEach((category) => {
+        // console.log(category);
+        const buttonCard = document.createElement('div')
+        buttonCard.innerHTML = `
+        <button onclick="loadCategoryById(${category.category_id})" 
+            id="btn-${category.category_id}" class="btn">
+            ${category.category}
+        </button>
+        `
+
+        // append div
+        buttonContainer.append(buttonCard)
+
+    });
+
+}
+
+
 const displayVideos = (videos) => {
     const videosContainer = document.getElementById('videos')
+    videosContainer.innerHTML ='';
+
+    if(videos.length == 0){
+        videosContainer.classList.remove("grid")
+        videosContainer.innerHTML= `
+        <div class="flex flex-col gap-3 justify-center items-center py-10">
+        <img class="h-[300px] w-[300px]" src="assets/Icon.png" />
+        <p class="text-xl font-semibold">There is no video in this category</p>
+        </div>
+        `;
+        return
+    } 
+    else{
+        videosContainer.classList.add("grid")
+    }
+
+
     for (const video of videos) {
-        console.log(video)
+        // console.log(video)
         // create a card
         const card = document.createElement('div');
         card.classList = "card card-compact";
